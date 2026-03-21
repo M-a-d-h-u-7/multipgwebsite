@@ -1,21 +1,227 @@
-<!-- ─────────── PAGE: SHOP ─────────── -->
-<div class="page" id="page-shop">
-  <div style="padding-top: 64px;">
-    <div class="section">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OBSIDIAN — Shop</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+.shop-wrap { padding-top: 64px; min-height: 100vh; }
+.shop-hero {
+  padding: 5rem 2.5rem 3rem;
+  max-width: 1280px; margin: 0 auto;
+  display: flex; justify-content: space-between; align-items: flex-end;
+  border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 1.5rem;
+}
+.shop-hero-left { }
+.shop-count { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.15em; margin-top: 0.5rem; }
+
+.shop-body { max-width: 1280px; margin: 0 auto; padding: 2.5rem; display: grid; grid-template-columns: 220px 1fr; gap: 3rem; }
+
+/* SIDEBAR */
+.sidebar { }
+.sidebar-section { margin-bottom: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: 2rem; }
+.sidebar-section:last-child { border-bottom: none; }
+.sidebar-title { font-size: 0.58rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent); margin-bottom: 1.25rem; }
+.sidebar-option { display: flex; align-items: center; gap: 0.75rem; cursor: pointer; padding: 0.35rem 0; transition: color 0.2s; }
+.sidebar-option input[type="checkbox"] { display: none; }
+.sidebar-checkbox {
+  width: 14px; height: 14px; border: 1px solid var(--border2); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+}
+.sidebar-option.checked .sidebar-checkbox { background: var(--accent); border-color: var(--accent); }
+.sidebar-option.checked .sidebar-checkbox::after { content: '✓'; font-size: 9px; color: var(--bg); }
+.sidebar-option-label { font-size: 0.65rem; letter-spacing: 0.08em; color: var(--muted); transition: color 0.2s; }
+.sidebar-option:hover .sidebar-option-label, .sidebar-option.checked .sidebar-option-label { color: var(--text); }
+
+.price-range-track { height: 2px; background: var(--border2); position: relative; margin: 1rem 0; }
+.price-range-fill { height: 100%; background: var(--accent); position: absolute; }
+.price-range-vals { display: flex; justify-content: space-between; font-size: 0.6rem; color: var(--muted); }
+
+/* MAIN */
+.shop-main { }
+.sort-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+.sort-label { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; }
+.sort-select {
+  background: var(--surface); border: 1px solid var(--border2); color: var(--text);
+  font-family: 'DM Mono', monospace; font-size: 0.62rem; padding: 0.5rem 1rem;
+  outline: none; cursor: pointer; letter-spacing: 0.08em;
+}
+.sort-select:focus { border-color: var(--accent); }
+.filter-chips { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.filter-chip {
+  font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 0.35rem 0.85rem; border: 1px solid var(--accent); color: var(--accent);
+  display: flex; align-items: center; gap: 0.5rem; cursor: pointer;
+  background: rgba(200,169,110,0.06);
+}
+.chip-x { font-size: 0.7rem; }
+.no-results { padding: 4rem; text-align: center; font-size: 0.75rem; color: var(--muted); grid-column: 1/-1; }
+
+@media (max-width: 900px) {
+  .shop-body { grid-template-columns: 1fr; }
+  .sidebar { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .sidebar-section { margin-bottom: 0; }
+}
+@media (max-width: 600px) {
+  .sidebar { grid-template-columns: 1fr; }
+  .shop-hero { padding: 3rem 1.25rem 2rem; }
+  .shop-body { padding: 1.5rem 1.25rem; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">OBSIDIAN</a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="shop.html" class="nav-link active">Shop</a>
+    <a href="about.html" class="nav-link">About</a>
+    <a href="cart.html" class="nav-cart">Bag <span class="cart-badge" id="cart-count">0</span></a>
+  </div>
+</nav>
+
+<div class="shop-wrap">
+  <div class="shop-hero">
+    <div class="shop-hero-left">
       <p class="section-tag">All Products</p>
-      <h2 class="section-title">The Collection</h2>
-      <div class="filter-bar" id="filter-bar"></div>
-      <div class="product-grid" id="shop-grid"></div>
+      <h1 class="section-title" style="font-size:clamp(2.5rem,6vw,5rem)">The Collection</h1>
+      <p class="shop-count" id="shop-count"></p>
     </div>
-    <footer>
-      <div class="footer-inner">
-        <span class="footer-copy">© 2026 OBSIDIAN. All rights reserved.</span>
-        <div class="footer-links">
-          <span class="footer-link">Privacy</span>
-          <span class="footer-link">Terms</span>
-          <span class="footer-link">Contact</span>
+  </div>
+
+  <div class="shop-body">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <p class="sidebar-title">Category</p>
+        <div id="cat-filters"></div>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-title">Price Range</p>
+        <div style="margin-bottom:1rem">
+          <input type="range" id="price-range" min="0" max="10000" value="10000" step="500"
+            style="width:100%;accent-color:var(--accent);background:transparent;cursor:pointer"
+            oninput="filterProducts()">
+        </div>
+        <div class="price-range-vals">
+          <span>₹0</span>
+          <span id="price-val">Up to ₹10,000</span>
         </div>
       </div>
-    </footer>
+      <div class="sidebar-section">
+        <p class="sidebar-title">Sort By</p>
+        <select class="sort-select" id="sort-select" onchange="filterProducts()" style="width:100%">
+          <option value="default">Featured</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="name">Name A–Z</option>
+        </select>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="shop-main">
+      <div class="sort-bar">
+        <span class="sort-label" id="result-label">— products</span>
+        <div id="active-chips" class="filter-chips"></div>
+      </div>
+      <div class="product-grid" id="shop-grid"></div>
+    </main>
   </div>
 </div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-logo">OBSIDIAN</span>
+    <div class="footer-links">
+      <a href="about.html" class="footer-link">About</a>
+      <a href="#" class="footer-link">Privacy</a>
+      <a href="#" class="footer-link">Terms</a>
+      <a href="#" class="footer-link">Contact</a>
+    </div>
+    <span class="footer-copy">© 2026 OBSIDIAN</span>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script src="shared.js"></script>
+<script>
+updateNavCount();
+
+let selectedCats = [];
+const cats = [...new Set(PRODUCTS.map(p => p.cat))];
+
+/* Build category filters */
+const cf = document.getElementById('cat-filters');
+cats.forEach(c => {
+  const div = document.createElement('div');
+  div.className = 'sidebar-option';
+  div.dataset.cat = c;
+  div.innerHTML = `<div class="sidebar-checkbox"></div><span class="sidebar-option-label">${c}</span>`;
+  div.addEventListener('click', () => {
+    if (selectedCats.includes(c)) selectedCats = selectedCats.filter(x => x !== c);
+    else selectedCats.push(c);
+    div.classList.toggle('checked', selectedCats.includes(c));
+    filterProducts();
+  });
+  cf.appendChild(div);
+});
+
+function filterProducts() {
+  const maxPrice = +document.getElementById('price-range').value;
+  document.getElementById('price-val').textContent = `Up to ₹${maxPrice.toLocaleString('en-IN')}`;
+  const sortVal = document.getElementById('sort-select').value;
+
+  let list = PRODUCTS.filter(p => {
+    const catOk = selectedCats.length === 0 || selectedCats.includes(p.cat);
+    const priceOk = p.price <= maxPrice;
+    return catOk && priceOk;
+  });
+
+  if (sortVal === 'price-asc') list.sort((a,b) => a.price - b.price);
+  else if (sortVal === 'price-desc') list.sort((a,b) => b.price - a.price);
+  else if (sortVal === 'name') list.sort((a,b) => a.name.localeCompare(b.name));
+
+  document.getElementById('result-label').textContent = `${list.length} product${list.length!==1?'s':''}`;
+  document.getElementById('shop-count').textContent = `${list.length} of ${PRODUCTS.length} items`;
+
+  /* Active chips */
+  const chips = document.getElementById('active-chips');
+  chips.innerHTML = selectedCats.map(c =>
+    `<span class="filter-chip" onclick="removeCat('${c}')">${c} <span class="chip-x">×</span></span>`
+  ).join('');
+
+  const grid = document.getElementById('shop-grid');
+  if (list.length === 0) {
+    grid.innerHTML = '<p class="no-results">No products match your filters.</p>';
+    return;
+  }
+  grid.innerHTML = list.map(p => `
+    <a class="product-card" href="product.html?id=${p.id}">
+      <div class="product-img">${p.emoji}</div>
+      <div class="product-body">
+        <p class="product-cat">${p.cat}</p>
+        <h3 class="product-name">${p.name}</h3>
+        <div class="product-footer">
+          <span class="product-price">₹${p.price.toLocaleString('en-IN')}</span>
+          <button class="add-btn" onclick="event.preventDefault();event.stopPropagation();addToCart(${p.id},'${p.sizes[0]}','${p.colors[0]}');updateNavCount();showToast('Added ✦')">+ Add</button>
+        </div>
+      </div>
+    </a>`).join('');
+}
+
+function removeCat(c) {
+  selectedCats = selectedCats.filter(x => x !== c);
+  document.querySelectorAll('.sidebar-option').forEach(el => {
+    if (el.dataset.cat === c) el.classList.remove('checked');
+  });
+  filterProducts();
+}
+
+filterProducts();
+</script>
+</body>
+</html>
