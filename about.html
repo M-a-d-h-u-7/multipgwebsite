@@ -1,33 +1,243 @@
-<div class="page" id="page-about">
-  <div style="padding-top: 64px;">
-    <div class="section" style="max-width:720px; margin: 0 auto;">
-      <p class="section-tag">Our Story</p>
-      <h2 class="section-title">Philosophy of Restraint</h2>
-      <p style="font-size:0.82rem; color:var(--muted); line-height:2.2; margin-bottom:2rem;">
-        OBSIDIAN was born from a single idea: that the most powerful statement is one made in silence. 
-        Founded in 2021 in Bengaluru, we set out to create clothing that speaks to those who are 
-        unbothered by noise — who find depth in simplicity and luxury in restraint.
-      </p>
-      <p style="font-size:0.82rem; color:var(--muted); line-height:2.2; margin-bottom:2rem;">
-        Every piece is designed with a single question in mind: will this still feel essential in ten years? 
-        We work with a small network of certified artisan workshops across Karnataka and Tamil Nadu, 
-        ensuring fair wages and sustainable practices at every step.
-      </p>
-      <p style="font-size:0.82rem; color:var(--muted); line-height:2.2; margin-bottom:3rem;">
-        Our fabrics — organic cotton, hand-loomed linen, and recycled wool blends — are chosen for 
-        longevity over trend. We release two collections a year, each limited in run, never repeated.
-      </p>
-      <button class="btn btn-primary" onclick="showPage('shop')">Shop the Collection</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OBSIDIAN — About</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+.about-wrap { padding-top: 64px; }
+
+/* HERO */
+.about-hero {
+  height: 70vh; display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+  background: radial-gradient(ellipse 100% 80% at 70% 40%, #150f06 0%, #0a0a0a 60%);
+}
+.about-hero::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent, transparent 79px, var(--border) 79px, var(--border) 80px),
+              repeating-linear-gradient(90deg, transparent, transparent 79px, var(--border) 79px, var(--border) 80px);
+  opacity: 0.25;
+}
+.about-hero-content { text-align: center; position: relative; z-index: 1; padding: 0 2rem; }
+.about-hero-tag { font-size: 0.6rem; letter-spacing: 0.4em; text-transform: uppercase; color: var(--accent); margin-bottom: 1.5rem; }
+.about-hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(3rem, 9vw, 7rem); font-weight: 300; line-height: 0.95; color: var(--text);
+}
+.about-hero-title em { font-style: italic; color: var(--accent2); }
+
+/* MANIFESTO */
+.manifesto { max-width: 800px; margin: 0 auto; padding: 7rem 2.5rem; text-align: center; }
+.manifesto-quote {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 300; font-style: italic;
+  line-height: 1.35; color: var(--text2); margin-bottom: 2rem;
+}
+.manifesto-attr { font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent3); }
+
+/* STORY */
+.story { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.story-inner { max-width: 1280px; margin: 0 auto; padding: 6rem 2.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; }
+.story-text { }
+.story-num { font-size: 4rem; font-family: 'Cormorant Garamond', serif; color: var(--border2); line-height: 1; margin-bottom: 1.5rem; }
+.story-title { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; font-weight: 300; margin-bottom: 1.5rem; color: var(--text); }
+.story-body { font-size: 0.72rem; color: var(--muted); line-height: 2.3; }
+.story-visual {
+  aspect-ratio: 4/5; background: var(--surface2);
+  display: flex; align-items: center; justify-content: center; font-size: 9rem;
+  border: 1px solid var(--border); position: relative;
+}
+.story-visual::before {
+  content: ''; position: absolute; inset: 16px;
+  border: 1px solid var(--border); pointer-events: none;
+}
+
+/* VALUES */
+.values { max-width: 1280px; margin: 0 auto; padding: 6rem 2.5rem; }
+.values-header { text-align: center; margin-bottom: 4rem; }
+.values-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+.value-card { background: var(--bg); padding: 3rem 2.5rem; transition: background 0.25s; }
+.value-card:hover { background: var(--surface); }
+.value-icon { font-size: 2rem; margin-bottom: 1.25rem; }
+.value-name { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 300; margin-bottom: 0.85rem; color: var(--text); }
+.value-desc { font-size: 0.68rem; color: var(--muted); line-height: 2.1; }
+
+/* TEAM */
+.team { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 6rem 2.5rem; }
+.team-inner { max-width: 1280px; margin: 0 auto; }
+.team-header { margin-bottom: 3.5rem; }
+.team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+.team-card { background: var(--bg); padding: 0; transition: background 0.25s; overflow: hidden; }
+.team-card:hover { background: var(--surface2); }
+.team-avatar { aspect-ratio: 1; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 4rem; border-bottom: 1px solid var(--border); }
+.team-body { padding: 1.5rem; }
+.team-name { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 300; margin-bottom: 0.25rem; }
+.team-role { font-size: 0.58rem; color: var(--accent); letter-spacing: 0.18em; text-transform: uppercase; }
+
+/* CTA */
+.about-cta { text-align: center; padding: 7rem 2.5rem; }
+.about-cta-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 5vw, 4rem); font-weight: 300; margin-bottom: 1.5rem; }
+.about-cta-sub { font-size: 0.72rem; color: var(--muted); max-width: 420px; margin: 0 auto 3rem; line-height: 2; }
+.cta-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+@media (max-width: 900px) {
+  .story-inner { grid-template-columns: 1fr; gap: 3rem; }
+  .story-inner:nth-child(even) { direction: rtl; }
+  .story-inner:nth-child(even) > * { direction: ltr; }
+  .values-grid { grid-template-columns: 1fr 1fr; }
+  .team-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .values-grid, .team-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">OBSIDIAN</a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="shop.html" class="nav-link">Shop</a>
+    <a href="about.html" class="nav-link active">About</a>
+    <a href="cart.html" class="nav-cart">Bag <span class="cart-badge" id="cart-count">0</span></a>
+  </div>
+</nav>
+
+<div class="about-wrap">
+
+  <section class="about-hero">
+    <div class="about-hero-content">
+      <p class="about-hero-tag fade-up">Founded 2021 · Bengaluru, India</p>
+      <h1 class="about-hero-title fade-up-1">The Art of<br><em>Saying Less</em></h1>
     </div>
-    <footer style="margin-top: 4rem;">
-      <div class="footer-inner">
-        <span class="footer-copy">© 2026 OBSIDIAN. All rights reserved.</span>
-        <div class="footer-links">
-          <span class="footer-link">Privacy</span>
-          <span class="footer-link">Terms</span>
-          <span class="footer-link">Contact</span>
+  </section>
+
+  <section class="manifesto">
+    <p class="manifesto-quote">"We didn't set out to build a clothing brand. We set out to answer a single question: what does it feel like to own nothing you don't need?"</p>
+    <p class="manifesto-attr">— Kiran Nair, Founder</p>
+  </section>
+
+  <section class="story">
+    <div class="story-inner">
+      <div class="story-text">
+        <p class="story-num">01</p>
+        <h2 class="story-title">Where It Began</h2>
+        <p class="story-body">
+          OBSIDIAN started in a 400 sq ft studio in Indiranagar, Bengaluru. Kiran Nair, a former textile designer, grew tired of watching fast fashion cannibalise the craft she'd spent years studying. She decided to build something different — something slow, intentional, and permanent.<br><br>
+          The first collection was twelve pieces. Twelve. All in the same palette of near-blacks and warm neutrals. All sold out in three days through word of mouth alone.
+        </p>
+      </div>
+      <div class="story-visual">🖤</div>
+    </div>
+  </section>
+
+  <section class="values">
+    <div class="values-header">
+      <p class="section-tag">What We Stand For</p>
+      <h2 class="section-title">Our Values</h2>
+    </div>
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="value-icon">✦</div>
+        <h3 class="value-name">Permanence Over Trend</h3>
+        <p class="value-desc">We design against the calendar. No spring/summer collections, no limited-time colours that vanish. Every OBSIDIAN piece is designed to be worn a decade from now.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">◈</div>
+        <h3 class="value-name">Craft Over Speed</h3>
+        <p class="value-desc">We work with a small network of artisan workshops in Karnataka and Tamil Nadu. Every partnership is long-term, every wage above industry standard, every process audited annually.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">⟡</div>
+        <h3 class="value-name">Material Honesty</h3>
+        <p class="value-desc">Our fabrics are organic, recycled, or upcycled — and we tell you exactly what each piece is made of, where it came from, and what to do with it when you're done.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">◇</div>
+        <h3 class="value-name">Radical Restraint</h3>
+        <p class="value-desc">We release fewer than 30 styles per year. We don't do sales. We don't do collaborations. We do one thing and we do it as well as we possibly can.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">▲</div>
+        <h3 class="value-name">Repair, Not Replace</h3>
+        <p class="value-desc">Every OBSIDIAN garment comes with a lifetime repair guarantee. Send it back, we'll fix it. We believe the most sustainable garment is the one you already own.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">○</div>
+        <h3 class="value-name">End-of-Life Thinking</h3>
+        <p class="value-desc">When a garment truly can't be repaired, we take it back. We compost what's compostable, recycle what's recyclable, and learn from what we can't handle yet.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="team">
+    <div class="team-inner">
+      <div class="team-header">
+        <p class="section-tag">The People</p>
+        <h2 class="section-title">Behind OBSIDIAN</h2>
+      </div>
+      <div class="team-grid">
+        <div class="team-card">
+          <div class="team-avatar">👩</div>
+          <div class="team-body">
+            <p class="team-name">Kiran Nair</p>
+            <p class="team-role">Founder & Creative Dir.</p>
+          </div>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">🧑</div>
+          <div class="team-body">
+            <p class="team-name">Arjun Mehta</p>
+            <p class="team-role">Head of Production</p>
+          </div>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">👩</div>
+          <div class="team-body">
+            <p class="team-name">Priya Rao</p>
+            <p class="team-role">Lead Designer</p>
+          </div>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">🧑</div>
+          <div class="team-body">
+            <p class="team-name">Dev Sharma</p>
+            <p class="team-role">Sustainability Lead</p>
+          </div>
         </div>
       </div>
-    </footer>
-  </div>
+    </div>
+  </section>
+
+  <section class="about-cta">
+    <h2 class="about-cta-title">Ready to wear the silence?</h2>
+    <p class="about-cta-sub">Every piece is made to last. Browse the collection and find something that will still feel essential in ten years.</p>
+    <div class="cta-btns">
+      <a href="shop.html" class="btn btn-primary">Shop the Collection</a>
+      <a href="mailto:hello@obsidian.in" class="btn btn-outline">Get in Touch</a>
+    </div>
+  </section>
+
 </div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-logo">OBSIDIAN</span>
+    <div class="footer-links">
+      <a href="shop.html" class="footer-link">Shop</a>
+      <a href="#" class="footer-link">Sustainability Report</a>
+      <a href="#" class="footer-link">Careers</a>
+      <a href="#" class="footer-link">Press</a>
+      <a href="#" class="footer-link">Contact</a>
+    </div>
+    <span class="footer-copy">© 2026 OBSIDIAN</span>
+  </div>
+</footer>
+
+<script src="shared.js"></script>
+<script>updateNavCount();</script>
+</body>
+</html>
