@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OBSIDIAN — Product</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+.pd-wrap { padding-top: 64px; min-height: 100vh; }
+.pd-grid { display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - 64px); }
+
+/* GALLERY */
+.pd-gallery {
+  position: sticky; top: 64px; height: calc(100vh - 64px);
+  background: var(--surface); display: flex; align-items: center; justify-content: center;
+  border-right: 1px solid var(--border); flex-direction: column; gap: 1.5rem;
+}
+.pd-main-img {
+  font-size: 10rem; display: flex; align-items: center; justify-content: center;
+  width: 100%; flex: 1; transition: transform 0.4s ease;
+}
+.pd-thumbs { display: flex; gap: 0.75rem; padding: 1.5rem; }
+.pd-thumb {
+  width: 60px; height: 72px; background: var(--surface2); display: flex;
+  align-items: center; justify-content: center; font-size: 1.5rem;
+  border: 1px solid var(--border); cursor: pointer; transition: border-color 0.2s;
+}
+.pd-thumb.active { border-color: var(--accent); }
+.pd-thumb:hover { border-color: var(--border2); }
+
+/* INFO */
+.pd-info { padding: 4rem 4rem 4rem; overflow-y: auto; max-height: calc(100vh - 64px); }
+.pd-breadcrumb {
+  display: flex; gap: 0.5rem; align-items: center; margin-bottom: 2.5rem;
+  font-size: 0.58rem; letter-spacing: 0.15em; text-transform: uppercase;
+}
+.pd-breadcrumb a { color: var(--muted); text-decoration: none; transition: color 0.2s; }
+.pd-breadcrumb a:hover { color: var(--accent); }
+.pd-breadcrumb-sep { color: var(--border2); }
+.pd-cat { font-size: 0.58rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); }
+.pd-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.2rem, 4vw, 3.8rem); font-weight: 300;
+  line-height: 1; margin: 0.6rem 0 0.5rem;
+}
+.pd-price-wrap { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 2rem; }
+.pd-price { font-size: 1.5rem; color: var(--accent); }
+.pd-price-og { font-size: 0.85rem; color: var(--muted); text-decoration: line-through; }
+.pd-desc { font-size: 0.72rem; color: var(--muted); line-height: 2.2; margin-bottom: 2.5rem; }
+
+/* OPTIONS */
+.pd-opt-section { margin-bottom: 2rem; }
+.pd-opt-header { display: flex; justify-content: space-between; margin-bottom: 0.85rem; }
+.pd-opt-label { font-size: 0.58rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); }
+.pd-opt-val { font-size: 0.65rem; color: var(--text); }
+.pd-opt-btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.opt-btn {
+  padding: 0.55rem 1.1rem; font-family: 'DM Mono', monospace; font-size: 0.65rem;
+  border: 1px solid var(--border); background: none; color: var(--muted);
+  cursor: pointer; transition: all 0.2s; letter-spacing: 0.05em;
+}
+.opt-btn:hover { border-color: var(--border2); color: var(--text); }
+.opt-btn.selected { border-color: var(--accent); color: var(--accent); background: rgba(200,169,110,0.06); }
+.color-btn { width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 0.55rem; text-align: center; line-height: 1.2; }
+
+/* ACTIONS */
+.pd-actions { display: flex; gap: 0.75rem; margin-bottom: 2.5rem; }
+.pd-add-btn {
+  flex: 1; padding: 1rem; font-family: 'DM Mono', monospace;
+  font-size: 0.68rem; letter-spacing: 0.22em; text-transform: uppercase;
+  background: var(--accent); color: var(--bg); border: none; cursor: pointer;
+  transition: background 0.25s;
+}
+.pd-add-btn:hover { background: var(--accent2); }
+.pd-wish-btn {
+  padding: 1rem 1.25rem; background: none; border: 1px solid var(--border);
+  color: var(--muted); cursor: pointer; font-size: 1.1rem; transition: all 0.2s;
+}
+.pd-wish-btn:hover { border-color: var(--accent); color: var(--accent); }
+.pd-wish-btn.active { color: var(--danger); border-color: var(--danger); }
+
+/* META ACCORDION */
+.pd-accordion { border-top: 1px solid var(--border); }
+.accordion-item { border-bottom: 1px solid var(--border); }
+.accordion-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1.1rem 0; cursor: pointer; transition: color 0.2s;
+}
+.accordion-header:hover { color: var(--accent); }
+.accordion-title { font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; }
+.accordion-icon { font-size: 0.9rem; color: var(--muted); transition: transform 0.2s; }
+.accordion-item.open .accordion-icon { transform: rotate(45deg); color: var(--accent); }
+.accordion-body { font-size: 0.7rem; color: var(--muted); line-height: 2.1; max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s; }
+.accordion-item.open .accordion-body { max-height: 300px; padding-bottom: 1.25rem; }
+
+/* RELATED */
+.related-section { max-width: 1280px; margin: 0 auto; padding: 5rem 2.5rem; }
+
+@media (max-width: 900px) {
+  .pd-grid { grid-template-columns: 1fr; }
+  .pd-gallery { position: relative; height: 55vw; top: 0; }
+  .pd-info { padding: 2rem 1.5rem; max-height: none; overflow: visible; }
+  .pd-main-img { font-size: 6rem; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">OBSIDIAN</a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="shop.html" class="nav-link">Shop</a>
+    <a href="about.html" class="nav-link">About</a>
+    <a href="cart.html" class="nav-cart">Bag <span class="cart-badge" id="cart-count">0</span></a>
+  </div>
+</nav>
+
+<div class="pd-wrap">
+  <div class="pd-grid" id="pd-grid">
+    <div class="pd-gallery"><div style="font-size:3rem;color:var(--muted)">Loading…</div></div>
+    <div class="pd-info"></div>
+  </div>
+
+  <div class="related-section">
+    <p class="section-tag">You May Also Like</p>
+    <h2 class="section-title" style="margin-bottom:2.5rem">Related Pieces</h2>
+    <div class="product-grid" id="related-grid"></div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-logo">OBSIDIAN</span>
+    <div class="footer-links">
+      <a href="shop.html" class="footer-link">Shop</a>
+      <a href="about.html" class="footer-link">About</a>
+      <a href="#" class="footer-link">Contact</a>
+    </div>
+    <span class="footer-copy">© 2026 OBSIDIAN</span>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script src="shared.js"></script>
+<script>
+updateNavCount();
+
+const params = new URLSearchParams(location.search);
+const productId = parseInt(params.get('id')) || 1;
+const p = PRODUCTS.find(x => x.id === productId);
+
+if (!p) { location.href = 'shop.html'; }
+
+document.title = `OBSIDIAN — ${p.name}`;
+
+let selectedSize = p.sizes[0];
+let selectedColor = p.colors[0];
+let wishlisted = false;
+
+function renderPage() {
+  document.getElementById('pd-grid').innerHTML = `
+    <div class="pd-gallery">
+      <div class="pd-main-img" id="pd-emoji">${p.emoji}</div>
+      <div class="pd-thumbs">
+        <div class="pd-thumb active">${p.emoji}</div>
+        <div class="pd-thumb" style="font-size:1rem;color:var(--muted)">Side</div>
+        <div class="pd-thumb" style="font-size:1rem;color:var(--muted)">Back</div>
+      </div>
+    </div>
+    <div class="pd-info">
+      <div class="pd-breadcrumb">
+        <a href="index.html">Home</a>
+        <span class="pd-breadcrumb-sep">›</span>
+        <a href="shop.html">Shop</a>
+        <span class="pd-breadcrumb-sep">›</span>
+        <a href="shop.html">${p.cat}</a>
+        <span class="pd-breadcrumb-sep">›</span>
+        <span style="color:var(--text)">${p.name}</span>
+      </div>
+      <p class="pd-cat">${p.cat}</p>
+      <h1 class="pd-title">${p.name}</h1>
+      <div class="pd-price-wrap">
+        <span class="pd-price">₹${p.price.toLocaleString('en-IN')}</span>
+        <span class="pd-price-og">₹${Math.round(p.price * 1.3).toLocaleString('en-IN')}</span>
+      </div>
+      <p class="pd-desc">${p.desc}</p>
+
+      <div class="pd-opt-section">
+        <div class="pd-opt-header">
+          <span class="pd-opt-label">Size</span>
+          <span class="pd-opt-val" id="sz-val">${selectedSize}</span>
+        </div>
+        <div class="pd-opt-btns">
+          ${p.sizes.map(s => `<button class="opt-btn ${s===selectedSize?'selected':''}" onclick="selectSize('${s}')">${s}</button>`).join('')}
+        </div>
+      </div>
+
+      <div class="pd-opt-section">
+        <div class="pd-opt-header">
+          <span class="pd-opt-label">Colour</span>
+          <span class="pd-opt-val" id="col-val">${selectedColor}</span>
+        </div>
+        <div class="pd-opt-btns">
+          ${p.colors.map(c => `<button class="opt-btn color-btn ${c===selectedColor?'selected':''}" onclick="selectColor('${c}')">${c}</button>`).join('')}
+        </div>
+      </div>
+
+      <div class="pd-actions">
+        <button class="pd-add-btn" onclick="handleAdd()">Add to Bag</button>
+        <button class="pd-wish-btn ${wishlisted?'active':''}" id="wish-btn" onclick="toggleWish()" title="Wishlist">♡</button>
+      </div>
+
+      <div class="pd-accordion">
+        ${[
+          ['Details & Care', 'Organic cotton / linen blend. Cold wash, line dry. Do not tumble dry. Iron on low heat. Dry clean if needed.'],
+          ['Fit & Sizing', `Model is 5\'10" and wears size M. This piece runs true to size with a relaxed fit. If between sizes, size down for a closer fit.`],
+          ['Shipping & Returns', 'Free shipping on orders over ₹4,999. Standard delivery 3–5 business days. Free returns within 30 days on unworn items with tags.'],
+          ['Materials & Ethics', 'All fabrics are sourced from certified sustainable suppliers. This piece is made in India at a Fair Trade certified workshop.']
+        ].map(([title, body]) => `
+          <div class="accordion-item">
+            <div class="accordion-header" onclick="this.parentElement.classList.toggle('open')">
+              <span class="accordion-title">${title}</span>
+              <span class="accordion-icon">+</span>
+            </div>
+            <div class="accordion-body">${body}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function selectSize(s) { selectedSize = s; renderPage(); }
+function selectColor(c) { selectedColor = c; renderPage(); }
+function handleAdd() {
+  addToCart(p.id, selectedSize, selectedColor);
+  updateNavCount();
+  showToast('Added to bag ✦');
+}
+function toggleWish() {
+  wishlisted = !wishlisted;
+  renderPage();
+  showToast(wishlisted ? 'Saved to wishlist ♡' : 'Removed from wishlist');
+}
+
+renderPage();
+
+/* Related */
+const related = PRODUCTS.filter(x => x.id !== p.id && x.cat === p.cat).slice(0,4);
+const fallback = PRODUCTS.filter(x => x.id !== p.id).slice(0,4);
+const relList = related.length >= 2 ? related : fallback;
+const rg = document.getElementById('related-grid');
+rg.innerHTML = relList.map(rp => `
+  <a class="product-card" href="product.html?id=${rp.id}">
+    <div class="product-img">${rp.emoji}</div>
+    <div class="product-body">
+      <p class="product-cat">${rp.cat}</p>
+      <h3 class="product-name">${rp.name}</h3>
+      <div class="product-footer">
+        <span class="product-price">₹${rp.price.toLocaleString('en-IN')}</span>
+        <button class="add-btn" onclick="event.preventDefault();event.stopPropagation();addToCart(${rp.id},'${rp.sizes[0]}','${rp.colors[0]}');updateNavCount();showToast('Added ✦')">+ Add</button>
+      </div>
+    </div>
+  </a>`).join('');
+</script>
+</body>
+</html>
