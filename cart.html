@@ -1,11 +1,200 @@
-<div class="page" id="page-cart">
-  <div class="cart-wrap">
-    <div class="cart-inner">
-      <div>
-        <h2 class="cart-title">Your Bag</h2>
-        <div id="cart-items-list"></div>
-      </div>
-      <div id="cart-summary"></div>
-    </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OBSIDIAN — Bag</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+.cart-wrap { padding-top: 64px; min-height: 100vh; }
+.cart-inner { max-width: 1180px; margin: 0 auto; padding: 4rem 2.5rem; display: grid; grid-template-columns: 1fr 360px; gap: 4rem; align-items: start; }
+.cart-title { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 300; margin-bottom: 3rem; }
+
+/* ITEMS */
+.cart-item { display: flex; gap: 2rem; padding: 2rem 0; border-bottom: 1px solid var(--border); animation: fadeUp 0.4s ease both; }
+.cart-img { width: 96px; height: 116px; background: var(--surface2); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; border: 1px solid var(--border); }
+.ci-info { flex: 1; }
+.ci-cat { font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem; }
+.ci-name { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 300; margin-bottom: 0.4rem; }
+.ci-variant { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 1rem; }
+.ci-price { color: var(--accent); font-size: 0.9rem; margin-bottom: 1rem; }
+.ci-controls { display: flex; align-items: center; gap: 0; }
+.qty-btn {
+  width: 32px; height: 32px; background: none; border: 1px solid var(--border); color: var(--text2);
+  cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; font-family: inherit;
+}
+.qty-btn:hover { border-color: var(--accent); color: var(--accent); }
+.qty-num { width: 44px; height: 32px; text-align: center; background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); border-left: none; border-right: none; color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.78rem; line-height: 32px; }
+.ci-remove { margin-left: 1.5rem; font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); background: none; border: none; cursor: pointer; transition: color 0.2s; padding: 0; }
+.ci-remove:hover { color: var(--danger); }
+
+/* SUMMARY */
+.order-summary { background: var(--surface); border: 1px solid var(--border); padding: 2.5rem; position: sticky; top: 80px; }
+.os-title { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 300; margin-bottom: 2rem; }
+.os-row { display: flex; justify-content: space-between; align-items: center; padding: 0.85rem 0; border-bottom: 1px solid var(--border); font-size: 0.7rem; }
+.os-row:last-of-type { border-bottom: none; }
+.os-label { font-size: 0.58rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+.os-val { color: var(--text2); }
+.os-shipping-free { color: var(--success); }
+.os-divider { height: 1px; background: var(--border2); margin: 1rem 0; }
+.os-total { display: flex; justify-content: space-between; align-items: baseline; }
+.os-total-label { font-size: 0.58rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+.os-total-val { font-family: 'Cormorant Garamond', serif; font-size: 2rem; color: var(--accent); }
+.promo-wrap { display: flex; gap: 0; margin: 1.5rem 0; }
+.promo-input { flex: 1; background: var(--surface2); border: 1px solid var(--border2); border-right: none; color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.65rem; padding: 0.7rem 1rem; outline: none; text-transform: uppercase; letter-spacing: 0.1em; }
+.promo-input:focus { border-color: var(--accent); }
+.promo-input::placeholder { color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+.promo-btn { padding: 0.7rem 1.1rem; background: var(--border2); border: 1px solid var(--border2); color: var(--muted); font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.promo-btn:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.checkout-cta { display: block; width: 100%; padding: 1.1rem; font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.22em; text-transform: uppercase; background: var(--accent); color: var(--bg); border: none; cursor: pointer; transition: background 0.25s; text-decoration: none; text-align: center; }
+.checkout-cta:hover { background: var(--accent2); }
+.secure-note { font-size: 0.58rem; color: var(--muted); text-align: center; margin-top: 1rem; letter-spacing: 0.1em; }
+
+/* EMPTY */
+.empty-state { grid-column: 1/-1; padding: 8rem 2rem; text-align: center; }
+.empty-icon { font-size: 4rem; margin-bottom: 1.5rem; opacity: 0.4; }
+.empty-title { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; font-weight: 300; margin-bottom: 0.75rem; }
+.empty-sub { font-size: 0.7rem; color: var(--muted); margin-bottom: 2.5rem; line-height: 1.8; }
+
+/* SHIPPING BAR */
+.shipping-progress { margin-bottom: 2rem; }
+.sp-label { font-size: 0.6rem; color: var(--muted); margin-bottom: 0.6rem; letter-spacing: 0.1em; }
+.sp-track { height: 2px; background: var(--border2); border-radius: 1px; }
+.sp-fill { height: 100%; background: var(--accent); transition: width 0.5s ease; border-radius: 1px; }
+
+@media (max-width: 960px) { .cart-inner { grid-template-columns: 1fr; } .order-summary { position: static; } }
+@media (max-width: 600px) { .cart-inner { padding: 2rem 1.25rem; } .cart-item { gap: 1rem; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">OBSIDIAN</a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="shop.html" class="nav-link">Shop</a>
+    <a href="about.html" class="nav-link">About</a>
+    <a href="cart.html" class="nav-cart active">Bag <span class="cart-badge" id="cart-count">0</span></a>
   </div>
+</nav>
+
+<div class="cart-wrap">
+  <div class="cart-inner" id="cart-inner"></div>
 </div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-logo">OBSIDIAN</span>
+    <div class="footer-links">
+      <a href="shop.html" class="footer-link">Continue Shopping</a>
+      <a href="about.html" class="footer-link">About</a>
+      <a href="#" class="footer-link">Contact</a>
+    </div>
+    <span class="footer-copy">© 2026 OBSIDIAN</span>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script src="shared.js"></script>
+<script>
+updateNavCount();
+render();
+
+function render() {
+  const cart = getCart();
+  const wrap = document.getElementById('cart-inner');
+  updateNavCount();
+
+  if (cart.length === 0) {
+    wrap.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">◻</div>
+      <h2 class="empty-title">Your bag is empty</h2>
+      <p class="empty-sub">You haven't added anything yet.<br>Discover pieces built to last.</p>
+      <a href="shop.html" class="btn btn-primary">Shop the Collection</a>
+    </div>`;
+    return;
+  }
+
+  const subtotal = cartTotal();
+  const shipping = subtotal >= 4999 ? 0 : 199;
+  const tax = Math.round(subtotal * 0.05);
+  const grand = subtotal + shipping + tax;
+  const progress = Math.min(100, (subtotal / 4999) * 100);
+  const remaining = 4999 - subtotal;
+
+  let itemsHTML = cart.map((item, i) => `
+    <div class="cart-item">
+      <div class="cart-img">${item.emoji}</div>
+      <div class="ci-info">
+        <p class="ci-cat">${item.cat}</p>
+        <p class="ci-name">${item.name}</p>
+        <p class="ci-variant">${item.size} · ${item.color}</p>
+        <p class="ci-price">₹${(item.price * item.qty).toLocaleString('en-IN')}</p>
+        <div class="ci-controls">
+          <button class="qty-btn" onclick="chQty(${i},-1)">−</button>
+          <div class="qty-num">${item.qty}</div>
+          <button class="qty-btn" onclick="chQty(${i},1)">+</button>
+          <button class="ci-remove" onclick="rmItem(${i})">Remove</button>
+        </div>
+      </div>
+    </div>`).join('');
+
+  wrap.innerHTML = `
+    <div>
+      <h1 class="cart-title">Your Bag <span style="font-size:1.2rem;color:var(--muted)">(${cart.reduce((s,i)=>s+i.qty,0)})</span></h1>
+      ${itemsHTML}
+      <div style="margin-top:2rem"><a href="shop.html" class="btn btn-ghost" style="font-size:0.6rem">← Continue Shopping</a></div>
+    </div>
+    <div>
+      <div class="order-summary">
+        <p class="os-title">Order Summary</p>
+
+        <div class="shipping-progress">
+          <p class="sp-label">${shipping === 0 ? '✦ Free shipping unlocked' : `Add ₹${remaining.toLocaleString('en-IN')} more for free shipping`}</p>
+          <div class="sp-track"><div class="sp-fill" style="width:${progress}%"></div></div>
+        </div>
+
+        <div class="os-row"><span class="os-label">Subtotal</span><span class="os-val">₹${subtotal.toLocaleString('en-IN')}</span></div>
+        <div class="os-row"><span class="os-label">Shipping</span><span class="${shipping===0?'os-shipping-free':'os-val'}">${shipping===0?'Free':'₹'+shipping}</span></div>
+        <div class="os-row"><span class="os-label">GST (5%)</span><span class="os-val">₹${tax.toLocaleString('en-IN')}</span></div>
+
+        <div class="os-divider"></div>
+        <div class="os-total">
+          <span class="os-total-label">Total</span>
+          <span class="os-total-val">₹${grand.toLocaleString('en-IN')}</span>
+        </div>
+
+        <div class="promo-wrap" style="margin-top:1.5rem">
+          <input class="promo-input" placeholder="Promo Code" id="promo-input">
+          <button class="promo-btn" onclick="applyPromo()">Apply</button>
+        </div>
+
+        <a href="checkout.html" class="checkout-cta">Proceed to Checkout</a>
+        <p class="secure-note">🔒 Secure & encrypted checkout</p>
+      </div>
+    </div>`;
+}
+
+function chQty(i, d) {
+  const cart = getCart();
+  cart[i].qty = Math.max(1, cart[i].qty + d);
+  saveCart(cart);
+  render();
+}
+function rmItem(i) {
+  const cart = getCart();
+  cart.splice(i, 1);
+  saveCart(cart);
+  render();
+  showToast('Item removed');
+}
+function applyPromo() {
+  const val = document.getElementById('promo-input').value.trim().toUpperCase();
+  if (val === 'OBSIDIAN10') showToast('Promo applied: 10% off ✦');
+  else showToast('Invalid promo code');
+}
+</script>
+</body>
+</html>
