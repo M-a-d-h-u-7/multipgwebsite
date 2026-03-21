@@ -1,11 +1,314 @@
-<div class="page" id="page-checkout">
-  <div class="checkout-wrap">
-    <div class="checkout-inner">
-      <div>
-        <h2 class="checkout-title">Checkout</h2>
-        <div id="checkout-form-area"></div>
-      </div>
-      <div id="checkout-summary"></div>
-    </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OBSIDIAN — Checkout</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+.checkout-wrap { padding-top: 64px; min-height: 100vh; }
+.checkout-inner { max-width: 1100px; margin: 0 auto; padding: 4rem 2.5rem; display: grid; grid-template-columns: 1fr 360px; gap: 4rem; align-items: start; }
+
+/* STEPS */
+.checkout-steps { display: flex; gap: 0; margin-bottom: 3rem; }
+.step { display: flex; align-items: center; gap: 0.75rem; font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; }
+.step-num { width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; color: var(--muted); transition: all 0.3s; }
+.step.active .step-num { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.step.done .step-num { background: var(--success); border-color: var(--success); color: white; }
+.step-label { color: var(--muted); transition: color 0.3s; }
+.step.active .step-label { color: var(--text); }
+.step-sep { width: 40px; height: 1px; background: var(--border); margin: 0 0.5rem; flex-shrink: 0; }
+
+/* FORM */
+.form-title { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 300; color: var(--accent2); margin: 2.5rem 0 1.25rem; }
+.form-title:first-of-type { margin-top: 0; }
+.form-group { margin-bottom: 1.25rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-label { display: block; font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+.form-label span { color: var(--danger); }
+.form-input {
+  width: 100%; background: var(--surface); border: 1px solid var(--border2); color: var(--text);
+  padding: 0.85rem 1rem; font-family: 'DM Mono', monospace; font-size: 0.72rem;
+  transition: border-color 0.2s; outline: none; letter-spacing: 0.04em;
+}
+.form-input:focus { border-color: var(--accent); background: var(--surface2); }
+.form-input.error { border-color: var(--danger); }
+.form-input::placeholder { color: var(--muted); }
+.form-select { appearance: none; cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237a7672'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; padding-right: 2.5rem; }
+.field-error { font-size: 0.58rem; color: var(--danger); margin-top: 0.35rem; letter-spacing: 0.08em; display: none; }
+.field-error.show { display: block; }
+
+/* PAYMENT ICONS */
+.payment-icons { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; align-items: center; }
+.pay-icon { background: var(--surface2); border: 1px solid var(--border); padding: 0.4rem 0.7rem; font-size: 0.58rem; color: var(--muted); letter-spacing: 0.1em; }
+
+/* CARD DISPLAY */
+.card-preview {
+  background: linear-gradient(135deg, var(--surface2) 0%, var(--surface3) 100%);
+  border: 1px solid var(--border2); padding: 1.5rem; margin-bottom: 2rem;
+  position: relative; overflow: hidden;
+}
+.card-preview::before {
+  content: ''; position: absolute; top: -30px; right: -30px;
+  width: 120px; height: 120px; border-radius: 50%;
+  background: rgba(200,169,110,0.06); pointer-events: none;
+}
+.card-chip { font-size: 0.6rem; letter-spacing: 0.15em; color: var(--muted); margin-bottom: 1rem; }
+.card-number { font-size: 1rem; letter-spacing: 0.25em; color: var(--text2); margin-bottom: 1rem; font-variant-numeric: tabular-nums; }
+.card-footer { display: flex; justify-content: space-between; font-size: 0.6rem; color: var(--muted); letter-spacing: 0.1em; }
+
+/* SUBMIT */
+.submit-btn {
+  width: 100%; padding: 1.1rem; font-family: 'DM Mono', monospace;
+  font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase;
+  background: var(--accent); color: var(--bg); border: none; cursor: pointer;
+  transition: background 0.25s; margin-top: 1.5rem; position: relative;
+}
+.submit-btn:hover { background: var(--accent2); }
+.submit-btn:disabled { background: var(--muted); cursor: not-allowed; }
+.lock-icon { margin-right: 0.5rem; }
+
+/* ORDER REVIEW */
+.order-review { background: var(--surface); border: 1px solid var(--border); padding: 2rem; position: sticky; top: 80px; }
+.or-title { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 300; margin-bottom: 1.5rem; }
+.or-item { display: flex; gap: 1rem; align-items: center; padding: 0.85rem 0; border-bottom: 1px solid var(--border); }
+.or-emoji { font-size: 1.6rem; flex-shrink: 0; }
+.or-info { flex: 1; }
+.or-name { font-size: 0.7rem; margin-bottom: 0.25rem; color: var(--text); }
+.or-variant { font-size: 0.58rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+.or-price { color: var(--accent); font-size: 0.75rem; flex-shrink: 0; }
+.or-totals { margin-top: 1rem; }
+.or-row { display: flex; justify-content: space-between; font-size: 0.65rem; padding: 0.6rem 0; border-bottom: 1px solid var(--border); }
+.or-label { color: var(--muted); font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; }
+.or-grand { display: flex; justify-content: space-between; align-items: baseline; margin-top: 1rem; }
+.or-grand-label { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; }
+.or-grand-val { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; color: var(--accent); }
+
+@media (max-width: 960px) { .checkout-inner { grid-template-columns: 1fr; } .order-review { position: static; } }
+@media (max-width: 600px) { .checkout-inner { padding: 2rem 1.25rem; } .form-row { grid-template-columns: 1fr; } .checkout-steps { gap: 0; } .step-sep { width: 20px; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">OBSIDIAN</a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="shop.html" class="nav-link">Shop</a>
+    <a href="about.html" class="nav-link">About</a>
+    <a href="cart.html" class="nav-cart">Bag <span class="cart-badge" id="cart-count">0</span></a>
   </div>
+</nav>
+
+<div class="checkout-wrap">
+  <div class="checkout-inner" id="checkout-inner"></div>
 </div>
+
+<div class="toast" id="toast"></div>
+
+<script src="shared.js"></script>
+<script>
+updateNavCount();
+
+const cart = getCart();
+if (cart.length === 0) { location.href = 'cart.html'; }
+
+const subtotal = cartTotal();
+const shipping = subtotal >= 4999 ? 0 : 199;
+const tax = Math.round(subtotal * 0.05);
+const grand = subtotal + shipping + tax;
+
+document.getElementById('checkout-inner').innerHTML = `
+  <div>
+    <div class="checkout-steps">
+      <div class="step done"><div class="step-num">✓</div><span class="step-label">Bag</span></div>
+      <div class="step-sep"></div>
+      <div class="step active"><div class="step-num">2</div><span class="step-label">Details</span></div>
+      <div class="step-sep"></div>
+      <div class="step"><div class="step-num">3</div><span class="step-label">Confirm</span></div>
+    </div>
+
+    <p class="form-title">Contact</p>
+    <div class="form-group">
+      <label class="form-label">Email address <span>*</span></label>
+      <input class="form-input" type="email" id="f-email" placeholder="you@example.com">
+      <p class="field-error" id="err-email">Please enter a valid email</p>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Phone number</label>
+      <input class="form-input" type="tel" id="f-phone" placeholder="+91 98765 43210">
+    </div>
+
+    <p class="form-title">Shipping Address</p>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">First name <span>*</span></label>
+        <input class="form-input" id="f-fname" placeholder="Arya">
+        <p class="field-error" id="err-fname">Required</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Last name <span>*</span></label>
+        <input class="form-input" id="f-lname" placeholder="Sharma">
+        <p class="field-error" id="err-lname">Required</p>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Address line 1 <span>*</span></label>
+      <input class="form-input" id="f-addr1" placeholder="12, MG Road">
+      <p class="field-error" id="err-addr1">Required</p>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Address line 2</label>
+      <input class="form-input" placeholder="Apartment, suite, etc.">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">City <span>*</span></label>
+        <input class="form-input" id="f-city" placeholder="Bengaluru">
+        <p class="field-error" id="err-city">Required</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label">State</label>
+        <select class="form-input form-select">
+          <option>Karnataka</option><option>Maharashtra</option><option>Tamil Nadu</option>
+          <option>Delhi</option><option>Gujarat</option><option>Rajasthan</option>
+          <option>West Bengal</option><option>Telangana</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">PIN Code <span>*</span></label>
+        <input class="form-input" id="f-pin" placeholder="560038" maxlength="6" oninput="this.value=this.value.replace(/\D/g,'')">
+        <p class="field-error" id="err-pin">Enter valid PIN</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Country</label>
+        <input class="form-input" value="India" readonly style="color:var(--muted)">
+      </div>
+    </div>
+
+    <p class="form-title">Payment</p>
+    <div class="payment-icons">
+      <span class="pay-icon">VISA</span>
+      <span class="pay-icon">MC</span>
+      <span class="pay-icon">AMEX</span>
+      <span class="pay-icon">UPI</span>
+      <span class="pay-icon">NET BANKING</span>
+    </div>
+
+    <div class="card-preview">
+      <p class="card-chip">◼◼ CHIP & CONTACTLESS</p>
+      <p class="card-number" id="card-display">•••• •••• •••• ••••</p>
+      <div class="card-footer">
+        <span id="card-name-display">CARDHOLDER NAME</span>
+        <span id="card-exp-display">MM/YY</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Card number <span>*</span></label>
+      <input class="form-input" id="f-card" placeholder="4242 4242 4242 4242" maxlength="19" oninput="fmtCard(this)" autocomplete="cc-number">
+      <p class="field-error" id="err-card">Enter a valid card number</p>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Expiry <span>*</span></label>
+        <input class="form-input" id="f-exp" placeholder="MM / YY" maxlength="7" oninput="fmtExpiry(this)">
+        <p class="field-error" id="err-exp">Enter valid expiry</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label">CVV <span>*</span></label>
+        <input class="form-input" id="f-cvv" placeholder="•••" maxlength="4" type="password" autocomplete="cc-csc">
+        <p class="field-error" id="err-cvv">Required</p>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Name on card <span>*</span></label>
+      <input class="form-input" id="f-cname" placeholder="ARYA SHARMA" style="text-transform:uppercase" oninput="document.getElementById('card-name-display').textContent=this.value||'CARDHOLDER NAME'">
+      <p class="field-error" id="err-cname">Required</p>
+    </div>
+
+    <button class="submit-btn" onclick="placeOrder()">
+      <span class="lock-icon">🔒</span> Place Order — ₹${grand.toLocaleString('en-IN')}
+    </button>
+    <p style="font-size:0.58rem;color:var(--muted);text-align:center;margin-top:0.75rem">By placing your order you agree to our Terms & Privacy Policy</p>
+  </div>
+
+  <div>
+    <div class="order-review">
+      <p class="or-title">Order (${cart.reduce((s,i)=>s+i.qty,0)} items)</p>
+      ${cart.map(item => `
+        <div class="or-item">
+          <span class="or-emoji">${item.emoji}</span>
+          <div class="or-info">
+            <p class="or-name">${item.name}</p>
+            <p class="or-variant">${item.size} · ${item.color} · ×${item.qty}</p>
+          </div>
+          <span class="or-price">₹${(item.price*item.qty).toLocaleString('en-IN')}</span>
+        </div>`).join('')}
+      <div class="or-totals">
+        <div class="or-row"><span class="or-label">Subtotal</span><span>₹${subtotal.toLocaleString('en-IN')}</span></div>
+        <div class="or-row"><span class="or-label">Shipping</span><span style="${shipping===0?'color:var(--success)':''}">${shipping===0?'Free':'₹'+shipping}</span></div>
+        <div class="or-row"><span class="or-label">GST (5%)</span><span>₹${tax.toLocaleString('en-IN')}</span></div>
+        <div class="or-grand">
+          <span class="or-grand-label">Total</span>
+          <span class="or-grand-val">₹${grand.toLocaleString('en-IN')}</span>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+function fmtCard(el) {
+  let v = el.value.replace(/\D/g,'').slice(0,16);
+  el.value = v.replace(/(.{4})/g,'$1 ').trim();
+  const disp = v.padEnd(16,'•').replace(/(.{4})/g,'$1 ').trim();
+  document.getElementById('card-display').textContent = disp;
+}
+function fmtExpiry(el) {
+  let v = el.value.replace(/\D/g,'').slice(0,4);
+  if (v.length > 2) v = v.slice(0,2) + ' / ' + v.slice(2);
+  el.value = v;
+  document.getElementById('card-exp-display').textContent = v.replace(' / ','/') || 'MM/YY';
+}
+window.fmtCard = fmtCard;
+window.fmtExpiry = fmtExpiry;
+
+function validate(id, errId, check) {
+  const el = document.getElementById(id);
+  const err = document.getElementById(errId);
+  const ok = check(el.value);
+  el.classList.toggle('error', !ok);
+  err.classList.toggle('show', !ok);
+  return ok;
+}
+
+window.placeOrder = function() {
+  let valid = true;
+  valid &= validate('f-email','err-email', v => /\S+@\S+\.\S+/.test(v));
+  valid &= validate('f-fname','err-fname', v => v.trim().length > 0);
+  valid &= validate('f-lname','err-lname', v => v.trim().length > 0);
+  valid &= validate('f-addr1','err-addr1', v => v.trim().length > 0);
+  valid &= validate('f-city','err-city', v => v.trim().length > 0);
+  valid &= validate('f-pin','err-pin', v => /^\d{6}$/.test(v));
+  valid &= validate('f-card','err-card', v => v.replace(/\s/g,'').length === 16);
+  valid &= validate('f-exp','err-exp', v => /\d{2}\s*\/\s*\d{2}/.test(v));
+  valid &= validate('f-cvv','err-cvv', v => v.length >= 3);
+  valid &= validate('f-cname','err-cname', v => v.trim().length > 0);
+
+  if (!valid) { showToast('Please fill all required fields'); return; }
+
+  const btn = document.querySelector('.submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Processing…';
+
+  setTimeout(() => {
+    const orderNum = 'OB-' + Math.floor(100000 + Math.random() * 900000);
+    localStorage.setItem('obsidian_last_order', orderNum);
+    saveCart([]);
+    location.href = 'success.html';
+  }, 1800);
+};
+</script>
+</body>
+</html>
