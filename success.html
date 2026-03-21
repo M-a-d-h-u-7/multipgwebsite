@@ -1,11 +1,127 @@
-<div class="page" id="page-success">
-  <div style="padding-top:64px;">
-    <div class="success-page">
-      <div class="success-icon">✦</div>
-      <h2 class="success-title">Order Confirmed</h2>
-      <p class="order-num" id="order-num">Order #OB-000000</p>
-      <p class="success-sub">Thank you for your order. A confirmation has been sent to your email. Your items will be carefully packed and dispatched within 24 hours.</p>
-      <button class="btn btn-primary" onclick="showPage('shop')">Continue Shopping</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OBSIDIAN — Order Confirmed</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+.success-wrap { padding-top: 64px; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.success-card {
+  max-width: 600px; width: 100%; margin: 2rem; padding: 4rem 3rem; text-align: center;
+  background: var(--surface); border: 1px solid var(--border); position: relative; overflow: hidden;
+  animation: fadeUp 0.8s ease both;
+}
+.success-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+.success-card::after {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(200,169,110,0.04) 0%, transparent 70%);
+  pointer-events: none;
+}
+.check-circle {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: rgba(200,169,110,0.1); border: 1px solid var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem; margin: 0 auto 2rem;
+  animation: popIn 0.5s 0.3s ease both;
+}
+@keyframes popIn {
+  from { transform: scale(0.5); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+.success-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.8rem; font-weight: 300; margin-bottom: 0.5rem;
+  animation: fadeUp 0.6s 0.4s ease both; opacity: 0; animation-fill-mode: both;
+}
+.success-sub {
+  font-size: 0.7rem; color: var(--muted); line-height: 2; max-width: 380px; margin: 0 auto 2rem;
+  animation: fadeUp 0.6s 0.5s ease both; opacity: 0; animation-fill-mode: both;
+}
+.order-badge {
+  display: inline-flex; align-items: center; gap: 0.75rem;
+  font-size: 0.68rem; letter-spacing: 0.2em; color: var(--accent);
+  background: rgba(200,169,110,0.08); border: 1px solid rgba(200,169,110,0.25);
+  padding: 0.7rem 1.5rem; margin-bottom: 2.5rem;
+  animation: fadeUp 0.6s 0.6s ease both; opacity: 0; animation-fill-mode: both;
+}
+.order-steps { display: flex; justify-content: center; gap: 0; margin-bottom: 3rem; flex-wrap: wrap; }
+.ostep { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; flex: 1; min-width: 100px; max-width: 140px; }
+.ostep-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); position: relative; }
+.ostep-dot::after { content: ''; position: absolute; top: 50%; left: 100%; width: 100%; height: 1px; background: var(--border2); transform: translateY(-50%); }
+.ostep:last-child .ostep-dot::after { display: none; }
+.ostep-dot.pending { background: var(--border2); }
+.ostep-line { height: 1px; flex: 1; background: var(--border2); margin-top: 5px; display: none; }
+.ostep-label { font-size: 0.58rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); text-align: center; }
+.ostep.active .ostep-label { color: var(--accent); }
+
+.delivery-info { background: var(--surface2); border: 1px solid var(--border); padding: 1.5rem; margin-bottom: 2.5rem; text-align: left; }
+.di-row { display: flex; justify-content: space-between; padding: 0.6rem 0; font-size: 0.68rem; border-bottom: 1px solid var(--border); }
+.di-row:last-child { border-bottom: none; }
+.di-key { color: var(--muted); font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; }
+
+.success-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">OBSIDIAN</a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="shop.html" class="nav-link">Shop</a>
+    <a href="about.html" class="nav-link">About</a>
+    <a href="cart.html" class="nav-cart">Bag <span class="cart-badge" id="cart-count">0</span></a>
+  </div>
+</nav>
+
+<div class="success-wrap">
+  <div class="success-card">
+    <div class="check-circle">✦</div>
+    <h1 class="success-title">Order Confirmed</h1>
+    <p class="success-sub">Thank you for your order. A confirmation has been sent to your email. Your items will be carefully packed and dispatched within 24 hours.</p>
+    <div class="order-badge">Order <span id="order-num">OB-000000</span></div>
+
+    <div class="order-steps">
+      <div class="ostep active">
+        <div class="ostep-dot"></div>
+        <span class="ostep-label">Confirmed</span>
+      </div>
+      <div class="ostep">
+        <div class="ostep-dot pending"></div>
+        <span class="ostep-label">Processing</span>
+      </div>
+      <div class="ostep">
+        <div class="ostep-dot pending"></div>
+        <span class="ostep-label">Shipped</span>
+      </div>
+      <div class="ostep">
+        <div class="ostep-dot pending"></div>
+        <span class="ostep-label">Delivered</span>
+      </div>
+    </div>
+
+    <div class="delivery-info">
+      <div class="di-row"><span class="di-key">Estimated Delivery</span><span>3–5 Business Days</span></div>
+      <div class="di-row"><span class="di-key">Carrier</span><span>Delhivery / BlueDart</span></div>
+      <div class="di-row"><span class="di-key">Tracking</span><span style="color:var(--muted)">Available in 24 hrs</span></div>
+    </div>
+
+    <div class="success-actions">
+      <a href="shop.html" class="btn btn-primary">Continue Shopping</a>
+      <a href="index.html" class="btn btn-outline">Back to Home</a>
     </div>
   </div>
 </div>
+
+<script src="shared.js"></script>
+<script>
+updateNavCount();
+const orderNum = localStorage.getItem('obsidian_last_order') || 'OB-' + Math.floor(100000 + Math.random() * 900000);
+document.getElementById('order-num').textContent = orderNum;
+</script>
+</body>
+</html>
